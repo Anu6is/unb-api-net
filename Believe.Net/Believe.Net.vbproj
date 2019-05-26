@@ -2,7 +2,15 @@
 
   <PropertyGroup>
     <RootNamespace></RootNamespace>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>0.0.1</Version>
+    <Authors>Anu6is</Authors>
+    <Description>A .Net wrapper for the UnbelievaBoat Discord bot API.</Description>
+    <PackageProjectUrl>https://github.com/Anu6is/unb-api-net</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Anu6is/unb-api-net</RepositoryUrl>
+    <RepositoryType>GitHub</RepositoryType>
+    <PackageTags>Discord, UnbelievaBoat, .Net-Core, unb-api, Believe.Net</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
