@@ -84,7 +84,7 @@ Namespace Believe.Net
         Public Async Function IncreaseUserCashAsync(guildId As ULong, userId As ULong,
                                                     cash As Decimal, Optional reason As String = Nothing) As Task(Of User)
             Dim params = New CashBalanceParameters() With {.Cash = cash, .Reason = reason}
-            Return Await RequestClient.SendAsync(Of User)(HttpMethod.Patch, $"guilds/{guildId}/users/{userId}", params).ConfigureAwait(False)
+            Return Await RequestClient.SendAsync(Of User)(New HttpMethod("PATCH"), $"guilds/{guildId}/users/{userId}", params).ConfigureAwait(False)
         End Function
 
         ''' <summary>
@@ -98,7 +98,7 @@ Namespace Believe.Net
         Public Async Function IncreaseUserBankAsync(guildId As ULong, userId As ULong,
                                                     bank As Decimal, Optional reason As String = Nothing) As Task(Of User)
             Dim params = New BankBalanceParameters() With {.Bank = bank, .Reason = reason}
-            Return Await RequestClient.SendAsync(Of User)(HttpMethod.Patch, $"guilds/{guildId}/users/{userId}", params).ConfigureAwait(False)
+            Return Await RequestClient.SendAsync(Of User)(New HttpMethod("PATCH"), $"guilds/{guildId}/users/{userId}", params).ConfigureAwait(False)
         End Function
 
         ''' <summary>
@@ -113,7 +113,7 @@ Namespace Believe.Net
         Public Async Function IncreaseUserBalanceAsync(guildId As ULong, userId As ULong,
                                                        cash As Decimal, bank As Decimal, Optional reason As String = Nothing) As Task(Of User)
             Dim params = New UserBalanceParameters() With {.Cash = cash, .Bank = bank, .Reason = reason}
-            Return Await RequestClient.SendAsync(Of User)(HttpMethod.Patch, $"guilds/{guildId}/users/{userId}", params).ConfigureAwait(False)
+            Return Await RequestClient.SendAsync(Of User)(New HttpMethod("PATCH"), $"guilds/{guildId}/users/{userId}", params).ConfigureAwait(False)
         End Function
 
         ''' <summary>
@@ -126,8 +126,8 @@ Namespace Believe.Net
         ''' <returns><see cref="User"/></returns>
         Public Async Function DecreaseUserCashAsync(guildId As ULong, userId As ULong,
                                                     cash As Decimal, Optional reason As String = Nothing) As Task(Of User)
-            Dim params = New CashBalanceParameters() With {.Cash = cash, .Reason = reason}
-            Return Await RequestClient.SendAsync(Of User)(HttpMethod.Patch, $"guilds/{guildId}/users/{userId}", params).ConfigureAwait(False)
+            Dim params = New CashBalanceParameters() With {.Cash = Math.Abs(cash) * -1, .Reason = reason}
+            Return Await RequestClient.SendAsync(Of User)(New HttpMethod("PATCH"), $"guilds/{guildId}/users/{userId}", params).ConfigureAwait(False)
         End Function
 
         ''' <summary>
@@ -140,8 +140,8 @@ Namespace Believe.Net
         ''' <returns><see cref="User"/></returns>
         Public Async Function DecreaseUserBankAsync(guildId As ULong, userId As ULong,
                                                     bank As Decimal, Optional reason As String = Nothing) As Task(Of User)
-            Dim params = New BankBalanceParameters() With {.Bank = bank, .Reason = reason}
-            Return Await RequestClient.SendAsync(Of User)(HttpMethod.Patch, $"guilds/{guildId}/users/{userId}", params).ConfigureAwait(False)
+            Dim params = New BankBalanceParameters() With {.Bank = Math.Abs(bank) * -1, .Reason = reason}
+            Return Await RequestClient.SendAsync(Of User)(New HttpMethod("PATCH"), $"guilds/{guildId}/users/{userId}", params).ConfigureAwait(False)
         End Function
 
         ''' <summary>
@@ -155,8 +155,8 @@ Namespace Believe.Net
         ''' <returns><see cref="User"/></returns>
         Public Async Function DecreaseUserBalanceAsync(guildId As ULong, userId As ULong,
                                                        cash As Decimal, bank As Decimal, Optional reason As String = Nothing) As Task(Of User)
-            Dim params = New UserBalanceParameters() With {.Cash = cash, .Bank = bank, .Reason = reason}
-            Return Await RequestClient.SendAsync(Of User)(HttpMethod.Patch, $"guilds/{guildId}/users/{userId}", params).ConfigureAwait(False)
+            Dim params = New UserBalanceParameters() With {.Cash = Math.Abs(cash) * -1, .Bank = Math.Abs(bank) * -1, .Reason = reason}
+            Return Await RequestClient.SendAsync(Of User)(New HttpMethod("PATCH"), $"guilds/{guildId}/users/{userId}", params).ConfigureAwait(False)
         End Function
 
         ''' <summary>

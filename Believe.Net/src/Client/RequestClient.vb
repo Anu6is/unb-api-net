@@ -67,7 +67,7 @@ Namespace Believe.Net
             Select Case response.StatusCode
                 Case HttpStatusCode.OK
                     Return response.Stream.Deserialize(Of T)(_serializer)
-                Case HttpStatusCode.TooManyRequests
+                Case 429 'HttpStatusCode.TooManyRequests
                     Dim ratelimit = response.Stream.Deserialize(Of RateLimit)(_serializer)
                     Dim span = TimeSpan.FromMilliseconds(ratelimit.RetryAfter)
                     Dim retry = String.Format("{0:D2}m:{1:D2}s:{2:D3}ms", span.Minutes, span.Seconds, span.Milliseconds)
