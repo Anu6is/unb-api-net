@@ -52,7 +52,7 @@ Namespace Believe.Net
 
                     If response.Retry.HasValue AndAlso _config.RetryOnRateLimit Then
                         Await Task.Delay(response.Retry.Value)
-                        Await SendAsync(Of T)(New HttpRequestMessage(request.Method, request.RequestUri))
+                        Return Await SendAsync(Of T)(New HttpRequestMessage(request.Method, request.RequestUri))
                     End If
 
                     Return value
