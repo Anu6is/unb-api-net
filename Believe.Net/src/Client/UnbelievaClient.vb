@@ -21,6 +21,39 @@ Namespace Believe.Net
         End Sub
 
         ''' <summary>
+        ''' Retrieve basic guild information for the specified guild id
+        ''' </summary>
+        ''' <remarks>
+        '''     NOTE: This uses an undocumented endpoint!!
+        '''     Complex objects from the returned json are not mapped (Bot Member, User, Roles, Channels). 
+        ''' </remarks>
+        ''' <param name="guildId"></param>
+        ''' <returns><see cref="GuildInfo"/></returns>
+        Public Async Function GetGuildInfoAsync(guildId As ULong) As Task(Of GuildInfo)
+            Return Await RequestClient.SendAsync(Of GuildInfo)(HttpMethod.Get, $"guilds/{guildId}").ConfigureAwait(False)
+        End Function
+
+        ''' <summary>
+        ''' Retrieve the current API <see cref="Permissions"/> for the application
+        ''' </summary>
+        ''' <param name="guildId">The id of the guild from which to get the <see cref="Permissions"/></param>
+        ''' <returns><see cref="Permissions"/></returns>
+        Public Async Function GetPermissionsAsync(guildId As ULong) As Task(Of Permissions)
+            Return Await RequestClient.SendAsync(Of Permissions)(HttpMethod.Get, $"applications/@me/guilds/{guildId}").ConfigureAwait(False)
+        End Function
+
+        ''' <summary>
+        ''' Determine if the application has a specific API permission
+        ''' </summary>
+        ''' <param name="guildId">The id of the guild to perform the permission check</param>
+        ''' <param name="permission">The <see cref="ApplicationPermission"/> to check for</param>
+        ''' <returns>True/False for if the permission is granted</returns>
+        Public Async Function HasPermissionAsync(guildId As ULong, permission As ApplicationPermission) As Task(Of Boolean)
+            Dim permissions = Await GetPermissionsAsync(guildId)
+            Return permissions.Has(permission)
+        End Function
+
+        ''' <summary>
         ''' Retrieve the balance for a specified user
         ''' </summary>
         ''' <param name="guildId">The id of the guild the user belong to</param>
@@ -164,7 +197,7 @@ Namespace Believe.Net
         ''' </summary>
         ''' <param name="guildId">The id of the guild to retrieve</param>
         ''' <returns>List of <see cref="User"/></returns>
-        Public Async Function GetGuildLeaderboard(guildId As ULong) As Task(Of IReadOnlyCollection(Of User))
+        Public Async Function GetGuildLeaderboardAsync(guildId As ULong) As Task(Of IReadOnlyCollection(Of User))
             Return Await RequestClient.SendAsync(Of List(Of User))(HttpMethod.Get, $"guilds/{guildId}/users").ConfigureAwait(False)
         End Function
 

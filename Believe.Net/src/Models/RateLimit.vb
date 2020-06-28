@@ -3,10 +3,15 @@ Imports Newtonsoft.Json
 
 Namespace Believe.Net.Models
     Friend NotInheritable Class RateLimit
-        'Rate limit message
+        ''' <summary>
+        '''     Rate limit message
+        ''' </summary>
+        <JsonProperty("message")>
         Public Message As String
 
-        'The number of milliseconds to wait before submitting another request.
+        ''' <summary>
+        '''     The number of milliseconds to wait before submitting another request.
+        ''' </summary>
         <JsonProperty("retry_after")>
         Public RetryAfter As Long
     End Class

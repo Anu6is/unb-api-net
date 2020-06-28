@@ -2,9 +2,19 @@
 
 Namespace Believe.Net.Models
     Friend Class RateLimitInfo
-        Public ReadOnly Limit As Integer?       'The total number of requests that can be made
-        Public ReadOnly Remaining As Integer?   'The number of remaining requests that can be made
-        Public ReadOnly Reset As Long?          'Epoch time at which the rate limit resets
+
+        ''' <summary>
+        '''     The total number of requests that can be made
+        ''' </summary>
+        Public ReadOnly Limit As Integer?
+        ''' <summary>
+        '''     The number of remaining requests that can be made
+        ''' </summary>
+        Public ReadOnly Remaining As Integer?
+        ''' <summary>
+        '''     Epoch time at which the rate limit resets
+        ''' </summary>
+        Public ReadOnly Reset As Long?
 
         Friend Sub New(headers As Dictionary(Of String, String))
             Dim value As String = String.Empty
@@ -20,7 +30,7 @@ Namespace Believe.Net.Models
         End Sub
 
         Public Overrides Function ToString() As String
-            Return $"Requests: [{Remaining}/{Limit}] | Resets @ {DateTimeOffset.FromUnixTimeMilliseconds(Reset.Value)}"
+            Return $"Requests: [{Remaining.GetValueOrDefault}/{Limit.GetValueOrDefault}] | Resets @ {DateTimeOffset.FromUnixTimeMilliseconds(Reset.GetValueOrDefault)}"
         End Function
     End Class
 End Namespace

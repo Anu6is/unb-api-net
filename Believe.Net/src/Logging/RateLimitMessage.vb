@@ -3,9 +3,19 @@
 Namespace Believe.Net
     Friend NotInheritable Class RatelimitMessage
         Inherits LogMessage
-        Public ReadOnly Property RateLimit As Integer       'The total number of request that can be made
-        Public ReadOnly Property Remaining As Integer       'The available number of requests before the limit is reached
-        Public ReadOnly Property Reset As DateTimeOffset    'Time at which the limit will be reset
+
+        ''' <summary>
+        '''     The total number of request that can be made
+        ''' </summary>
+        Public ReadOnly Property RateLimit As Integer
+        ''' <summary>
+        '''     The available number of requests before the limit is 
+        ''' </summary>
+        Public ReadOnly Property Remaining As Integer
+        ''' <summary>
+        '''     Time at which the limit will be reset
+        ''' </summary>
+        Public ReadOnly Property Reset As DateTimeOffset
 
         Public Sub New(level As LogLevel, message As String, info As RateLimitInfo)
             MyBase.New(level, message)

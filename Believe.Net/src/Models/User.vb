@@ -1,20 +1,35 @@
 Imports Newtonsoft.Json
 Namespace Believe.Net.Models
     Public NotInheritable Class User
-        'Leaderboard rank of the user. 
+
+        ''' <summary>
+        '''     Leaderboard rank of the user.  
+        ''' </summary>
+        <JsonProperty("rank")>
         Public Rank As String
 
-        'User ID of the discord user
+        ''' <summary>
+        '''     User ID of the discord user 
+        ''' </summary>
         <JsonProperty("user_id")>
         Public UserId As String
 
-        'User's cash balance
+        ''' <summary>
+        '''     User's cash balance
+        ''' </summary>
+        <JsonProperty("cash")>
         Public Cash As Double
 
-        'User's bank balance
+        ''' <summary>
+        '''     User's bank balance 
+        ''' </summary>
+        <JsonProperty("bank")>
         Public Bank As Double
 
-        'User's total balance
+        ''' <summary>
+        '''     User's total balance
+        ''' </summary>
+        <JsonProperty("total")>
         Public Total As Double
     End Class
 End Namespace

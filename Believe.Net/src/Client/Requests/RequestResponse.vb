@@ -16,7 +16,6 @@ Namespace Believe.Net
             End Get
         End Property
 
-
         Public Sub New(request As String, statusCode As HttpStatusCode, headers As Dictionary(Of String, String), stream As Stream, duration As Long)
             Me.Request = request
             Me.StatusCode = statusCode

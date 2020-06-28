@@ -2,23 +2,43 @@
 
   <PropertyGroup>
     <RootNamespace></RootNamespace>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.0.0</Version>
+    <Version>1.1.0</Version>
     <Authors>Anu6is</Authors>
 	<Title>Believe.Net</Title>
 	<Product>.Net UnbelievaBoat API (unb-api-net)</Product>
-	<PackageIconUrl>https://raw.githubusercontent.com/Anu6is/unb-api-net/master/Believe.Net/assets/logo_red.png?token=ABDCC3ISIBB6OYMBF44LXXC45K5UM</PackageIconUrl>
+	<PackageIconUrl></PackageIconUrl>
     <Description>A .Net wrapper for the UnbelievaBoat Discord bot API.</Description>
     <PackageProjectUrl>https://github.com/Anu6is/unb-api-net</PackageProjectUrl>
     <RepositoryUrl>https://github.com/Anu6is/unb-api-net</RepositoryUrl>
     <RepositoryType>GitHub</RepositoryType>
     <PackageTags>Discord, UnbelievaBoat, .Net-Core, unb-api, Believe.Net</PackageTags>
 	<PackageId>Believe.Net</PackageId>
+	<OptionStrict>Off</OptionStrict>
+	<PackageReleaseNotes>Adds new endpoints for checking permissions and querying guild information.</PackageReleaseNotes>
+	<PackageIcon>logo_red.png</PackageIcon>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <WarningsAsErrors></WarningsAsErrors>
+    <NoWarn>41999,42016,42017,42018,42019,42020,42021,42022,42032,42036</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <WarningsAsErrors></WarningsAsErrors>
+    <NoWarn>41999,42016,42017,42018,42019,42020,42021,42022,42032,42036</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="assets\logo_red.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

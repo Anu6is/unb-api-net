@@ -1,6 +1,4 @@
-﻿Imports System.Text
-
-Namespace Believe.Net
+﻿Namespace Believe.Net
     Public Class LogMessage
         Public ReadOnly Property Message As String
         Public ReadOnly Property Level As LogLevel

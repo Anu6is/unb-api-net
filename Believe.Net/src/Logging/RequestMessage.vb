@@ -5,10 +5,22 @@ Namespace Believe.Net
     Friend NotInheritable Class RequestMessage
         Inherits LogMessage
 
-        Private ReadOnly Request As String              'The request endpoint
-        Private ReadOnly Status As HttpStatusCode       'The status code returned by the API
-        Private ReadOnly Duration As Long               'The length of time (ms) the reuquest took
-        Private ReadOnly RateLimitInfo As RateLimitInfo 'Rate limit details
+        ''' <summary>
+        '''     The request endpoint
+        ''' </summary>
+        Private ReadOnly Request As String
+        ''' <summary>
+        '''     The status code returned by the API
+        ''' </summary>
+        Private ReadOnly Status As HttpStatusCode
+        ''' <summary>
+        '''     The length of time (ms) the reuquest took
+        ''' </summary>
+        Private ReadOnly Duration As Long
+        ''' <summary>
+        '''     Rate limit details
+        ''' </summary>
+        Private ReadOnly RateLimitInfo As RateLimitInfo
 
         Public Sub New(level As LogLevel, message As String, request As RequestResponse)
             MyBase.New(level, message)
@@ -19,8 +31,8 @@ Namespace Believe.Net
             Me.RateLimitInfo = New RateLimitInfo(request.Headers)
         End Sub
 
-        Public Function Resolve() As String
-            Return $"{Request} {Duration}ms | Status Code:{Status}{vbNewLine}{RateLimitInfo.ToString}"
+        Public Overrides Function ToString() As String
+            Return $"{Request} {Duration}ms | Status Code:{Status}{vbNewLine}{RateLimitInfo}"
         End Function
     End Class
 End Namespace
