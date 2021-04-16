@@ -24,7 +24,7 @@ Namespace Believe.Net
             _httpClient.DefaultRequestHeaders.Add("Authorization", config.Token)
         End Sub
 
-        Friend Async Function SendAsync(Of T)(ByVal method As HttpMethod, ByVal endpoint As String,
+        Friend Async Function SendAsync(Of T As {IDataModel, New})(ByVal method As HttpMethod, ByVal endpoint As String,
                                         ByVal Optional parameters As RequestParametersBase = Nothing) As Task(Of T)
             Using request = New HttpRequestMessage(method, endpoint)
                 parameters = If(parameters, DefaultParameters.Empty)
@@ -34,7 +34,7 @@ Namespace Believe.Net
             End Using
         End Function
 
-        Private Async Function SendAsync(Of T)(request As HttpRequestMessage) As Task(Of T)
+        Private Async Function SendAsync(Of T As {IDataModel, New})(request As HttpRequestMessage) As Task(Of T)
             Try
                 Dim timer = Stopwatch.StartNew
                 Using responseMsg = Await _httpClient.SendAsync(request).ConfigureAwait(False)
@@ -63,7 +63,7 @@ Namespace Believe.Net
             End Try
         End Function
 
-        Private Function ParseResponseAsync(Of T)(ByRef response As RequestResponse) As T
+        Private Function ParseResponseAsync(Of T As {IDataModel, New})(ByRef response As RequestResponse) As T
             Select Case response.StatusCode
                 Case HttpStatusCode.OK
                     Return response.Stream.Deserialize(Of T)(_serializer)
@@ -72,10 +72,12 @@ Namespace Believe.Net
                     Dim span = TimeSpan.FromMilliseconds(ratelimit.RetryAfter)
                     Dim retry = String.Format("{0:D2}m:{1:D2}s:{2:D3}ms", span.Minutes, span.Seconds, span.Milliseconds)
 
-                    response.Message = $"{ratelimit.Message}. Retry in {retry}"
-                    response.Retry = span
+                    With response
+                        .Message = $"{ratelimit.Message}. Retry in {retry}"
+                        .Retry = span
+                    End With
 
-                    Return Nothing
+                    Return New T With {.IsRateLimited = True, .RetryAfter = span}
                 Case Else
                     Return Nothing
             End Select

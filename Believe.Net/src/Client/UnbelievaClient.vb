@@ -196,9 +196,20 @@ Namespace Believe.Net
         ''' Retrieve the leaderboard for the specified guild
         ''' </summary>
         ''' <param name="guildId">The id of the guild to retrieve</param>
+        ''' <param name="sort">Sort the leaderboard by <see cref="SortOrder"/> (cash, bank or total).</param>
+        ''' <param name="limit">Limit the number of users returned.</param>
+        ''' <param name="offset">Specify the offset of the first user.</param>
+        ''' <param name="page">Specify the page</param>
         ''' <returns>List of <see cref="User"/></returns>
-        Public Async Function GetGuildLeaderboardAsync(guildId As ULong) As Task(Of IReadOnlyCollection(Of User))
-            Return Await RequestClient.SendAsync(Of List(Of User))(HttpMethod.Get, $"guilds/{guildId}/users").ConfigureAwait(False)
+        Public Async Function GetGuildLeaderboardAsync(guildId As ULong,
+                                                       Optional sort As SortOrder = SortOrder.total,
+                                                       Optional limit As Short? = Nothing,
+                                                       Optional offset As Integer = 1,
+                                                       Optional page As Integer? = Nothing) As Task(Of Leaderboard)
+            If page IsNot Nothing AndAlso limit Is Nothing Then limit = 1000
+            Dim params = New LeaderboardParameters() With {.Sort = [Enum].GetName(GetType(SortOrder), sort),
+                                                           .Limit = limit, .Offset = offset, .Page = page}
+            Return Await RequestClient.SendAsync(Of Leaderboard)(HttpMethod.Get, $"guilds/{guildId}/users", params).ConfigureAwait(False)
         End Function
 
         Friend Function LogAsync(ByVal message As LogMessage) As Task

@@ -1,6 +1,6 @@
 Imports Newtonsoft.Json
 Namespace Believe.Net.Models
-    Public NotInheritable Class User
+    Public NotInheritable Class User : Implements IDataModel
 
         ''' <summary>
         '''     Leaderboard rank of the user.  
@@ -31,6 +31,11 @@ Namespace Believe.Net.Models
         ''' </summary>
         <JsonProperty("total")>
         Public Total As Double
+
+        <JsonIgnore>
+        Public Property IsRateLimited As Boolean Implements IDataModel.IsRateLimited
+        <JsonIgnore>
+        Public Property RetryAfter As TimeSpan Implements IDataModel.RetryAfter
     End Class
 End Namespace
 

@@ -1,7 +1,7 @@
 ﻿Imports Newtonsoft.Json
 
 Namespace Believe.Net.Models
-    Public Class GuildInfo
+    Public Class GuildInfo : Implements IDataModel
         <JsonProperty("id")>
         Public Property Id As ULong
         <JsonProperty("name")>
@@ -18,5 +18,10 @@ Namespace Believe.Net.Models
         Public Property Premium As Boolean
         <JsonProperty("max_role_income")>
         Public Property MaxRoleIncome As ULong
+
+        <JsonIgnore>
+        Public Property IsRateLimited As Boolean Implements IDataModel.IsRateLimited
+        <JsonIgnore>
+        Public Property RetryAfter As TimeSpan Implements IDataModel.RetryAfter
     End Class
 End Namespace

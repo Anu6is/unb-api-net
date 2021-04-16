@@ -1,9 +1,14 @@
 ﻿Imports Newtonsoft.Json
 
 Namespace Believe.Net.Models
-    Public NotInheritable Class Permissions
+    Public NotInheritable Class Permissions : Implements IDataModel
         <JsonProperty("permissions")>
         Public Property RawValue As ULong
+
+        <JsonIgnore>
+        Public Property IsRateLimited As Boolean Implements IDataModel.IsRateLimited
+        <JsonIgnore>
+        Public Property RetryAfter As TimeSpan Implements IDataModel.RetryAfter
 
 
         Public Function Has(permission As ApplicationPermission) As Boolean
