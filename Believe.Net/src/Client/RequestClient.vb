@@ -24,9 +24,10 @@ Namespace Believe.Net
             _httpClient.DefaultRequestHeaders.Add("Authorization", config.Token)
         End Sub
 
-        Friend Async Function SendAsync(Of T As {IDataModel, New})(ByVal method As HttpMethod, ByVal endpoint As String,
-                                        ByVal Optional parameters As RequestParametersBase = Nothing) As Task(Of T)
-            Using request = New HttpRequestMessage(method, endpoint)
+        Friend Async Function SendAsync(Of T As {IDataModel, New})(method As HttpMethod, endpoint As String,
+                                                                   Optional parameters As RequestParametersBase = Nothing,
+                                                                   Optional queryString As String = "") As Task(Of T)
+            Using request = New HttpRequestMessage(method, endpoint & queryString)
                 parameters = If(parameters, DefaultParameters.Empty)
                 request.Content = New StringContent(parameters.Serialize(_serializer), Encoding.UTF8, parameters.Encoding)
 

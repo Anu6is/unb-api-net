@@ -196,23 +196,28 @@ Namespace Believe.Net
         ''' Retrieve the leaderboard for the specified guild
         ''' </summary>
         ''' <param name="guildId">The id of the guild to retrieve</param>
-        ''' <param name="sort">Sort the leaderboard by <see cref="SortOrder"/> (cash, bank or total).</param>
-        ''' <param name="limit">Limit the number of users returned.</param>
-        ''' <param name="offset">Specify the offset of the first user.</param>
-        ''' <param name="page">Specify the page</param>
+        ''' <param name="sort">The value to sort the leaderboard by. <see cref="SortOrder"/> (cash, bank or total).</param>
+        ''' <param name="limit">The limit of items to return.</param>
+        ''' <param name="offset">The index at which to start retrieving items from the leaderboard.</param>
+        ''' <param name="page">The page to get items from.</param>
         ''' <returns>List of <see cref="User"/></returns>
         Public Async Function GetGuildLeaderboardAsync(guildId As ULong,
                                                        Optional sort As SortOrder = SortOrder.total,
                                                        Optional limit As Short? = Nothing,
                                                        Optional offset As Integer = 1,
-                                                       Optional page As Integer? = Nothing) As Task(Of Leaderboard)
+                                                       Optional page As Integer? = Nothing) As Task(Of ILeaderboard)
             If page IsNot Nothing AndAlso limit Is Nothing Then limit = 1000
-            Dim params = New LeaderboardParameters() With {.Sort = [Enum].GetName(GetType(SortOrder), sort),
+            Dim query = New LeaderboardParameters() With {.Sort = [Enum].GetName(GetType(SortOrder), sort),
                                                            .Limit = limit, .Offset = offset, .Page = page}
-            Return Await RequestClient.SendAsync(Of Leaderboard)(HttpMethod.Get, $"guilds/{guildId}/users", params).ConfigureAwait(False)
+
+            If page Is Nothing Then
+                Return Await RequestClient.SendAsync(Of Leaderboard)(HttpMethod.Get, $"guilds/{guildId}/users", queryString:=query.ToString).ConfigureAwait(False)
+            Else
+                Return Await RequestClient.SendAsync(Of LeaderboardPage)(HttpMethod.Get, $"guilds/{guildId}/users", queryString:=query.ToString).ConfigureAwait(False)
+            End If
         End Function
 
-        Friend Function LogAsync(ByVal message As LogMessage) As Task
+        Friend Function LogAsync(message As LogMessage) As Task
             If message.Level >= _config.LogLevel Then RaiseEvent RequestLog(message)
             Return Task.CompletedTask
         End Function

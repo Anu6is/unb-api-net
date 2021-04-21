@@ -24,5 +24,18 @@ Namespace Believe.Net.Parameters
             End Using
             Return sb.ToString
         End Function
+
+        Public Overrides Function ToString() As String
+            Dim query As New StringBuilder("?")
+
+            query.Append("sort=").Append(Sort)
+
+            If Limit IsNot Nothing Then query.Append("&").Append("limit=").Append(Limit)
+            If Page IsNot Nothing Then query.Append("&").Append("page=").Append(Page)
+
+            query.Append("&").Append("offset=").Append(Offset)
+
+            Return query.ToString()
+        End Function
     End Class
 End Namespace

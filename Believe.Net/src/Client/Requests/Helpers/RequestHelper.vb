@@ -20,7 +20,7 @@ Namespace Believe.Net
         End Function
 
         <Extension>
-        Friend Async Function ToStringAsync(ByVal stream As Stream) As Task(Of String)
+        Friend Async Function ToStringAsync(stream As Stream) As Task(Of String)
             Dim content As String = Nothing
 
             If stream IsNot Nothing Then
