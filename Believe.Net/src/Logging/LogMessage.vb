@@ -9,7 +9,7 @@
         End Sub
 
         Public Overrides Function ToString() As String
-            Return $"[{Level}] {Message}"
+            Return Message
         End Function
     End Class
 
@@ -18,7 +18,6 @@
         [Error] = 4
         Warning = 3
         Info = 2
-        Verbose = 1
         Debug = 0
     End Enum
 End Namespace

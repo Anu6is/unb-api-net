@@ -86,7 +86,7 @@ Namespace Believe.Net
 
         Private Async Function LogRequest(request As HttpRequestMessage, response As RequestResponse) As Task
             If response.IsSuccess Then
-                Await _client.LogAsync(New RequestMessage(LogLevel.Verbose,
+                Await _client.LogAsync(New RequestMessage(LogLevel.Info,
                                                           $"Status:{response.StatusCode} | {request.Method} {response.Request} {response.Duration}ms",
                                                           response))
             ElseIf response.Retry.HasValue Then
