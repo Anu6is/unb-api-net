@@ -1,23 +1,18 @@
 ﻿Imports System.Net.Http
 Imports Believe.Net.Models
 Imports Believe.Net.Parameters
+Imports Microsoft.Extensions.Logging
 
 Namespace Believe.Net
     Public NotInheritable Class UnbelievaClient
-        Private ReadOnly RequestClient As RequestClient
-        Private ReadOnly _config As UnbelievaClientConfig
+        Private ReadOnly _logger As ILogger
+        Private ReadOnly _requestClient As RequestClient
 
-        Public Event RequestLog(message As LogMessage)
-
-        Public Sub New(token As String)
-            MyClass.New(New UnbelievaClientConfig() With {.Token = token})
-        End Sub
-
-        Public Sub New(config As UnbelievaClientConfig)
+        Public Sub New(config As UnbelievaClientConfig, logger As ILogger(Of UnbelievaClient))
             If String.IsNullOrWhiteSpace(config.Token) Then Throw New ArgumentNullException("Token cannot be null or empty")
 
-            _config = config
-            RequestClient = New RequestClient(Me, _config)
+            _logger = logger
+            _requestClient = New RequestClient(Me, config)
         End Sub
 
         ''' <summary>
@@ -30,7 +25,7 @@ Namespace Believe.Net
         ''' <param name="guildId"></param>
         ''' <returns><see cref="GuildInfo"/></returns>
         Public Async Function GetGuildInfoAsync(guildId As ULong) As Task(Of GuildInfo)
-            Return Await RequestClient.SendAsync(Of GuildInfo)(HttpMethod.Get, $"guilds/{guildId}").ConfigureAwait(False)
+            Return Await _requestClient.SendAsync(Of GuildInfo)(HttpMethod.Get, $"guilds/{guildId}").ConfigureAwait(False)
         End Function
 
         ''' <summary>
@@ -39,7 +34,7 @@ Namespace Believe.Net
         ''' <param name="guildId">The id of the guild from which to get the <see cref="Permissions"/></param>
         ''' <returns><see cref="Permissions"/></returns>
         Public Async Function GetPermissionsAsync(guildId As ULong) As Task(Of Permissions)
-            Return Await RequestClient.SendAsync(Of Permissions)(HttpMethod.Get, $"applications/@me/guilds/{guildId}").ConfigureAwait(False)
+            Return Await _requestClient.SendAsync(Of Permissions)(HttpMethod.Get, $"applications/@me/guilds/{guildId}").ConfigureAwait(False)
         End Function
 
         ''' <summary>
@@ -60,7 +55,7 @@ Namespace Believe.Net
         ''' <param name="userId">The id of the user to be retrieved</param>
         ''' <returns><see cref="User"/></returns>
         Public Async Function GetUserBalanceAsync(guildId As ULong, userId As ULong) As Task(Of User)
-            Return Await RequestClient.SendAsync(Of User)(HttpMethod.Get, $"guilds/{guildId}/users/{userId}").ConfigureAwait(False)
+            Return Await _requestClient.SendAsync(Of User)(HttpMethod.Get, $"guilds/{guildId}/users/{userId}").ConfigureAwait(False)
         End Function
 
         ''' <summary>
@@ -74,7 +69,7 @@ Namespace Believe.Net
         Public Async Function SetUserCashAsync(guildId As ULong, userId As ULong,
                                                cash As Decimal, Optional reason As String = Nothing) As Task(Of User)
             Dim params = New CashBalanceParameters() With {.Cash = cash, .Reason = reason}
-            Return Await RequestClient.SendAsync(Of User)(HttpMethod.Put, $"guilds/{guildId}/users/{userId}", params).ConfigureAwait(False)
+            Return Await _requestClient.SendAsync(Of User)(HttpMethod.Put, $"guilds/{guildId}/users/{userId}", params).ConfigureAwait(False)
         End Function
 
         ''' <summary>
@@ -88,7 +83,7 @@ Namespace Believe.Net
         Public Async Function SetUserBankAsync(guildId As ULong, userId As ULong,
                                                bank As Decimal, Optional reason As String = Nothing) As Task(Of User)
             Dim params = New BankBalanceParameters() With {.Bank = bank, .Reason = reason}
-            Return Await RequestClient.SendAsync(Of User)(HttpMethod.Put, $"guilds/{guildId}/users/{userId}", params).ConfigureAwait(False)
+            Return Await _requestClient.SendAsync(Of User)(HttpMethod.Put, $"guilds/{guildId}/users/{userId}", params).ConfigureAwait(False)
         End Function
 
         ''' <summary>
@@ -103,7 +98,7 @@ Namespace Believe.Net
         Public Async Function SetUserBalanceAsync(guildId As ULong, userId As ULong,
                                                   cash As Decimal, bank As Decimal, Optional reason As String = Nothing) As Task(Of User)
             Dim params = New UserBalanceParameters() With {.Cash = cash, .Bank = bank, .Reason = reason}
-            Return Await RequestClient.SendAsync(Of User)(HttpMethod.Put, $"guilds/{guildId}/users/{userId}", params).ConfigureAwait(False)
+            Return Await _requestClient.SendAsync(Of User)(HttpMethod.Put, $"guilds/{guildId}/users/{userId}", params).ConfigureAwait(False)
         End Function
 
         ''' <summary>
@@ -117,7 +112,7 @@ Namespace Believe.Net
         Public Async Function IncreaseUserCashAsync(guildId As ULong, userId As ULong,
                                                     cash As Decimal, Optional reason As String = Nothing) As Task(Of User)
             Dim params = New CashBalanceParameters() With {.Cash = cash, .Reason = reason}
-            Return Await RequestClient.SendAsync(Of User)(New HttpMethod("PATCH"), $"guilds/{guildId}/users/{userId}", params).ConfigureAwait(False)
+            Return Await _requestClient.SendAsync(Of User)(New HttpMethod("PATCH"), $"guilds/{guildId}/users/{userId}", params).ConfigureAwait(False)
         End Function
 
         ''' <summary>
@@ -131,7 +126,7 @@ Namespace Believe.Net
         Public Async Function IncreaseUserBankAsync(guildId As ULong, userId As ULong,
                                                     bank As Decimal, Optional reason As String = Nothing) As Task(Of User)
             Dim params = New BankBalanceParameters() With {.Bank = bank, .Reason = reason}
-            Return Await RequestClient.SendAsync(Of User)(New HttpMethod("PATCH"), $"guilds/{guildId}/users/{userId}", params).ConfigureAwait(False)
+            Return Await _requestClient.SendAsync(Of User)(New HttpMethod("PATCH"), $"guilds/{guildId}/users/{userId}", params).ConfigureAwait(False)
         End Function
 
         ''' <summary>
@@ -146,7 +141,7 @@ Namespace Believe.Net
         Public Async Function IncreaseUserBalanceAsync(guildId As ULong, userId As ULong,
                                                        cash As Decimal, bank As Decimal, Optional reason As String = Nothing) As Task(Of User)
             Dim params = New UserBalanceParameters() With {.Cash = cash, .Bank = bank, .Reason = reason}
-            Return Await RequestClient.SendAsync(Of User)(New HttpMethod("PATCH"), $"guilds/{guildId}/users/{userId}", params).ConfigureAwait(False)
+            Return Await _requestClient.SendAsync(Of User)(New HttpMethod("PATCH"), $"guilds/{guildId}/users/{userId}", params).ConfigureAwait(False)
         End Function
 
         ''' <summary>
@@ -160,7 +155,7 @@ Namespace Believe.Net
         Public Async Function DecreaseUserCashAsync(guildId As ULong, userId As ULong,
                                                     cash As Decimal, Optional reason As String = Nothing) As Task(Of User)
             Dim params = New CashBalanceParameters() With {.Cash = Math.Abs(cash) * -1, .Reason = reason}
-            Return Await RequestClient.SendAsync(Of User)(New HttpMethod("PATCH"), $"guilds/{guildId}/users/{userId}", params).ConfigureAwait(False)
+            Return Await _requestClient.SendAsync(Of User)(New HttpMethod("PATCH"), $"guilds/{guildId}/users/{userId}", params).ConfigureAwait(False)
         End Function
 
         ''' <summary>
@@ -174,7 +169,7 @@ Namespace Believe.Net
         Public Async Function DecreaseUserBankAsync(guildId As ULong, userId As ULong,
                                                     bank As Decimal, Optional reason As String = Nothing) As Task(Of User)
             Dim params = New BankBalanceParameters() With {.Bank = Math.Abs(bank) * -1, .Reason = reason}
-            Return Await RequestClient.SendAsync(Of User)(New HttpMethod("PATCH"), $"guilds/{guildId}/users/{userId}", params).ConfigureAwait(False)
+            Return Await _requestClient.SendAsync(Of User)(New HttpMethod("PATCH"), $"guilds/{guildId}/users/{userId}", params).ConfigureAwait(False)
         End Function
 
         ''' <summary>
@@ -189,7 +184,7 @@ Namespace Believe.Net
         Public Async Function DecreaseUserBalanceAsync(guildId As ULong, userId As ULong,
                                                        cash As Decimal, bank As Decimal, Optional reason As String = Nothing) As Task(Of User)
             Dim params = New UserBalanceParameters() With {.Cash = Math.Abs(cash) * -1, .Bank = Math.Abs(bank) * -1, .Reason = reason}
-            Return Await RequestClient.SendAsync(Of User)(New HttpMethod("PATCH"), $"guilds/{guildId}/users/{userId}", params).ConfigureAwait(False)
+            Return Await _requestClient.SendAsync(Of User)(New HttpMethod("PATCH"), $"guilds/{guildId}/users/{userId}", params).ConfigureAwait(False)
         End Function
 
         ''' <summary>
@@ -211,14 +206,23 @@ Namespace Believe.Net
                                                            .Limit = limit, .Offset = offset, .Page = page}
 
             If page Is Nothing Then
-                Return Await RequestClient.SendAsync(Of Leaderboard)(HttpMethod.Get, $"guilds/{guildId}/users", queryString:=query.ToString).ConfigureAwait(False)
+                Return Await _requestClient.SendAsync(Of Leaderboard)(HttpMethod.Get, $"guilds/{guildId}/users", queryString:=query.ToString).ConfigureAwait(False)
             Else
-                Return Await RequestClient.SendAsync(Of LeaderboardPage)(HttpMethod.Get, $"guilds/{guildId}/users", queryString:=query.ToString).ConfigureAwait(False)
+                Return Await _requestClient.SendAsync(Of LeaderboardPage)(HttpMethod.Get, $"guilds/{guildId}/users", queryString:=query.ToString).ConfigureAwait(False)
             End If
         End Function
 
-        Friend Function LogAsync(message As LogMessage) As Task
-            If message.Level >= _config.LogLevel Then RaiseEvent RequestLog(message)
+        Friend Function LogAsync(log As LogMessage) As Task
+            If _logger Is Nothing Then Return Task.CompletedTask
+
+            Select Case log.Level
+                Case LogLevel.Critical : _logger.LogCritical(log.Message)
+                Case LogLevel.Error : _logger.LogError(log.Message)
+                Case LogLevel.Warning : _logger.LogWarning(log.Message)
+                Case LogLevel.Info : _logger.LogInformation(log.Message)
+                Case LogLevel.Debug : _logger.LogDebug(log.Message)
+            End Select
+
             Return Task.CompletedTask
         End Function
     End Class
