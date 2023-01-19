@@ -8,4 +8,8 @@ Public Enum ApplicationPermission As ULong
     '''     Edit the server economy.
     ''' </summary>
     EditEconomy = &H00_00_00_01
+    ''' <summary>
+    '''     Edit server items and user inventories
+    ''' </summary>
+    EditInventory = &H00_00_00_02
 End Enum
