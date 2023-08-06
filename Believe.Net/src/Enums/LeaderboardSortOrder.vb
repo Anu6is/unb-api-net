@@ -1,4 +1,4 @@
-﻿Public Enum SortOrder
+﻿Public Enum LeaderboardSortOrder
     total
     cash
     bank

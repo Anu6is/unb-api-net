@@ -1,5 +1,4 @@
 ﻿Namespace Believe.Net.Models
-
     Public NotInheritable Class Leaderboard
         Implements IDataModel : Implements ILeaderboard : Implements ICollection(Of User)
 

@@ -1,5 +1,4 @@
-﻿Imports Believe.Net
-Namespace Believe.Net
+﻿Namespace Believe.Net
     Public NotInheritable Class UnbelievaClientConfig
         ''' <summary>
         '''     API Access Token

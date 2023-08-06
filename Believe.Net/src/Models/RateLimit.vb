@@ -1,5 +1,4 @@
-﻿
-Imports Newtonsoft.Json
+﻿Imports Newtonsoft.Json
 
 Namespace Believe.Net.Models
     Friend NotInheritable Class RateLimit

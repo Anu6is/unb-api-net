@@ -1,4 +1,5 @@
 Imports Newtonsoft.Json
+
 Namespace Believe.Net.Models
     Public NotInheritable Class User : Implements IDataModel
 
