@@ -42,7 +42,8 @@ public class InventoryEndpointsTests : IDisposable
         }));
 
         var result = await client.GetUserInventoryItemsAsync(guildId, userId);
-        result.Should().BeEquivalentTo(expectedInventory);
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Should().BeEquivalentTo(expectedInventory);
     }
 
     [Fact]
@@ -67,12 +68,60 @@ public class InventoryEndpointsTests : IDisposable
 
         var result = await client.AddUserInventoryItemAsync(guildId, userId, storeItemId, requestPayload);
 
-        result.Should().BeEquivalentTo(expectedResponseItem);
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Should().BeEquivalentTo(expectedResponseItem);
         capturedPayload.Should().BeEquivalentTo(requestPayload);
     }
 
-    // TODO: Add tests for GetUserInventoryItemAsync, RemoveUserInventoryItemAsync.
-    // Test RemoveUserInventoryItemAsync with the SendDeleteRequestWithResponseAsync helper.
+    [Fact]
+    public async Task GetUserInventoryItemAsync_WhenItemNotFound_ReturnsFailureResult()
+    {
+        var guildId = "g1";
+        var userId = "u1";
+        var inventoryItemId = "nonexistentInvItem";
+        var errorJson = "{\"error\":\"Inventory item not found\"}";
+        var expectedStatusCode = HttpStatusCode.NotFound;
+
+        var client = CreateTestClient(MockHttpMessageHandler.Create(expectedStatusCode, errorJson, req =>
+        {
+            req.Method.Should().Be(HttpMethod.Get);
+            req.RequestUri.AbsolutePath.Should().Be($"{ApiPathPrefix}/users/{userId}/guilds/{guildId}/inventory/{inventoryItemId}");
+        }));
+
+        var result = await client.GetUserInventoryItemAsync(guildId, userId, inventoryItemId);
+
+        result.IsSuccess.Should().BeFalse();
+        result.Error.Should().NotBeNull();
+        result.Error.StatusCode.Should().Be(expectedStatusCode);
+        result.Error.RawContent.Should().Be(errorJson);
+        result.Error.Message.Should().Contain($"API request failed: Not Found (Status: {expectedStatusCode}). Raw content: {errorJson}");
+    }
+
+    [Fact]
+    public async Task RemoveUserInventoryItemAsync_WhenItemNotFound_ReturnsFailureResult()
+    {
+        var guildId = "g1";
+        var userId = "u1";
+        var storeItemId = "sItem1"; // This is the store item ID in the path
+        var errorJson = "{\"error\":\"Item to remove not found in inventory or insufficient quantity\"}";
+        var expectedStatusCode = HttpStatusCode.NotFound; // Or BadRequest, depending on API for this case
+
+        var client = CreateTestClient(MockHttpMessageHandler.Create(expectedStatusCode, errorJson, req =>
+        {
+            req.Method.Should().Be(HttpMethod.Delete);
+            req.RequestUri.AbsolutePath.Should().Be($"{ApiPathPrefix}/users/{userId}/guilds/{guildId}/inventory/{storeItemId}");
+        }));
+
+        var options = new UnbelievaBoatClient.RemoveUserInventoryItemOptions { Quantity = 1 };
+        var result = await client.RemoveUserInventoryItemAsync(guildId, userId, storeItemId, options);
+
+        result.IsSuccess.Should().BeFalse();
+        result.Error.Should().NotBeNull();
+        result.Error.StatusCode.Should().Be(expectedStatusCode);
+        result.Error.RawContent.Should().Be(errorJson);
+    }
+
+    // TODO: Add success tests for GetUserInventoryItemAsync, RemoveUserInventoryItemAsync.
 
     public void Dispose() => _mockHttpClient?.Dispose();
 }

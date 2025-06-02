@@ -35,7 +35,7 @@ public class GuildsEndpointsTests : IDisposable
             OwnerId = "owner456",
             MemberCount = 100,
             Symbol = "$",
-            Roles = new System.Collections.Generic.List<GuildRole>() // Add sample roles if needed
+            Roles = new System.Collections.Generic.List<GuildRole>()
         };
         var jsonResponse = JsonSerializer.Serialize(expectedGuild, UnbelievaBoatClient.DefaultJsonSerializerOptions);
 
@@ -47,7 +47,30 @@ public class GuildsEndpointsTests : IDisposable
 
         var result = await client.GetGuildAsync(guildId);
 
-        result.Should().BeEquivalentTo(expectedGuild);
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Should().BeEquivalentTo(expectedGuild);
+    }
+
+    [Fact]
+    public async Task GetGuildAsync_WhenGuildNotFound_ReturnsFailureResult()
+    {
+        var guildId = "nonexistentguild";
+        var errorJson = "{\"error\":\"Guild not found\"}";
+        var expectedStatusCode = HttpStatusCode.NotFound;
+
+        var client = CreateTestClient(MockHttpMessageHandler.Create(expectedStatusCode, errorJson, req =>
+        {
+            req.Method.Should().Be(HttpMethod.Get);
+            req.RequestUri.AbsolutePath.Should().Be($"{ApiPathPrefix}/guilds/{guildId}");
+        }));
+
+        var result = await client.GetGuildAsync(guildId);
+
+        result.IsSuccess.Should().BeFalse();
+        result.Error.Should().NotBeNull();
+        result.Error.StatusCode.Should().Be(expectedStatusCode);
+        result.Error.RawContent.Should().Be(errorJson);
+        result.Error.Message.Should().Contain($"API request failed: Not Found (Status: {expectedStatusCode}). Raw content: {errorJson}");
     }
 
     public void Dispose()

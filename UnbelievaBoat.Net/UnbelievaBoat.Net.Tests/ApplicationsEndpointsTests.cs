@@ -38,7 +38,29 @@ public class ApplicationsEndpointsTests : IDisposable
 
         var result = await client.GetApplicationPermissionsAsync();
 
-        result.Should().BeEquivalentTo(expectedPermissions);
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Should().BeEquivalentTo(expectedPermissions);
+    }
+
+    [Fact]
+    public async Task GetApplicationPermissionsAsync_WhenApiReturnsError_ReturnsFailureResult()
+    {
+        var errorJson = "{\"error\":\"Internal Server Error\"}";
+        var expectedStatusCode = HttpStatusCode.InternalServerError;
+
+        var client = CreateTestClient(MockHttpMessageHandler.Create(expectedStatusCode, errorJson, req =>
+        {
+            req.Method.Should().Be(HttpMethod.Get);
+            req.RequestUri.AbsolutePath.Should().Be($"{ApiPathPrefix}/applications/@me/permissions");
+        }));
+
+        var result = await client.GetApplicationPermissionsAsync();
+
+        result.IsSuccess.Should().BeFalse();
+        result.Error.Should().NotBeNull();
+        result.Error.StatusCode.Should().Be(expectedStatusCode);
+        result.Error.RawContent.Should().Be(errorJson);
+        result.Error.Message.Should().Contain($"API request failed: Internal Server Error (Status: {expectedStatusCode}). Raw content: {errorJson}");
     }
 
     public void Dispose()

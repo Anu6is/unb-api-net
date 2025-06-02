@@ -13,8 +13,8 @@ using System.Collections.Generic;
 public class EconomyEndpointsTests : IDisposable
 {
     private const string DummyToken = "test_token";
-    private const string DefaultTestBaseUrl = "http://localhost"; // Base part of URL
-    private const string ApiPathPrefix = "/api/v1"; // API path prefix
+    private const string DefaultTestBaseUrl = "http://localhost";
+    private const string ApiPathPrefix = "/api/v1";
     private HttpClient _mockHttpClient;
     private MockHttpMessageHandler _mockHttpMessageHandler;
 
@@ -22,7 +22,6 @@ public class EconomyEndpointsTests : IDisposable
     {
         _mockHttpMessageHandler = handler;
         _mockHttpClient = new HttpClient(_mockHttpMessageHandler);
-        // Pass full base URL to client constructor
         return new UnbelievaBoatClient(DummyToken, $"{DefaultTestBaseUrl}{ApiPathPrefix}", httpClient: _mockHttpClient);
     }
 
@@ -43,7 +42,8 @@ public class EconomyEndpointsTests : IDisposable
 
         var result = await client.GetUserBalanceAsync(guildId, userId);
 
-        result.Should().BeEquivalentTo(expectedBalance);
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Should().BeEquivalentTo(expectedBalance);
     }
 
     [Fact]
@@ -66,26 +66,76 @@ public class EconomyEndpointsTests : IDisposable
 
         var result = await client.SetUserBalanceAsync(guildId, userId, requestPayload);
 
-        result.Should().BeEquivalentTo(expectedResponse);
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Should().BeEquivalentTo(expectedResponse);
     }
 
     [Fact]
-    public async Task GetGuildLeaderboardAsync_WithOptions_ConstructsCorrectUrl()
+    public async Task GetUserBalanceAsync_WhenUserNotFound_ReturnsFailureResult()
+    {
+        var guildId = "guild123";
+        var userId = "nonexistentuser";
+        var errorJson = "{\"error\":\"User not found\"}";
+        var expectedStatusCode = HttpStatusCode.NotFound;
+
+        var client = CreateTestClient(MockHttpMessageHandler.Create(expectedStatusCode, errorJson, req =>
+        {
+            req.Method.Should().Be(HttpMethod.Get);
+            req.RequestUri.AbsolutePath.Should().Be($"{ApiPathPrefix}/guilds/{guildId}/users/{userId}");
+        }));
+
+        var result = await client.GetUserBalanceAsync(guildId, userId);
+
+        result.IsSuccess.Should().BeFalse();
+        result.Error.Should().NotBeNull();
+        result.Error.StatusCode.Should().Be(expectedStatusCode);
+        result.Error.RawContent.Should().Be(errorJson);
+        result.Error.Message.Should().Contain($"API request failed: Not Found (Status: {expectedStatusCode}). Raw content: {errorJson}");
+    }
+
+    [Fact]
+    public async Task SetUserBalanceAsync_WhenUnauthorized_ReturnsFailureResult()
+    {
+        var guildId = "g1";
+        var userId = "u1";
+        var requestPayload = new UpdateUserBalanceRequest { Cash = 100, Bank = 100 };
+        var errorJson = "{\"error\":\"Token lacks necessary permissions\"}";
+        var expectedStatusCode = HttpStatusCode.Unauthorized;
+
+        var client = CreateTestClient(MockHttpMessageHandler.Create(expectedStatusCode, errorJson, req =>
+        {
+            req.Method.Should().Be(HttpMethod.Put);
+            req.RequestUri.AbsolutePath.Should().Be($"{ApiPathPrefix}/guilds/{guildId}/users/{userId}");
+        }));
+
+        var result = await client.SetUserBalanceAsync(guildId, userId, requestPayload);
+
+        result.IsSuccess.Should().BeFalse();
+        result.Error.Should().NotBeNull();
+        result.Error.StatusCode.Should().Be(expectedStatusCode);
+        result.Error.RawContent.Should().Be(errorJson);
+        result.Error.Message.Should().Contain($"API request failed: Unauthorized (Status: {expectedStatusCode}). Raw content: {errorJson}");
+    }
+
+    [Fact]
+    public async Task GetGuildLeaderboardAsync_ValidRequest_ReturnsLeaderboard()
     {
         var guildId = "guild789";
         var options = new UnbelievaBoatClient.GuildLeaderboardOptions { Limit = 10, Offset = 5, Sort = "-total" };
         var expectedLeaderboard = new GuildLeaderboard { GuildId = guildId, Users = new List<UserBalance>() };
         var jsonResponse = JsonSerializer.Serialize(expectedLeaderboard, UnbelievaBoatClient.DefaultJsonSerializerOptions);
-
         string actualPathAndQuery = null;
+
         var client = CreateTestClient(MockHttpMessageHandler.Create(HttpStatusCode.OK, jsonResponse, req =>
         {
             req.Method.Should().Be(HttpMethod.Get);
-            actualPathAndQuery = req.RequestUri.PathAndQuery; // Includes leading slash and query
+            actualPathAndQuery = req.RequestUri.PathAndQuery;
         }));
 
-        await client.GetGuildLeaderboardAsync(guildId, options);
+        var result = await client.GetGuildLeaderboardAsync(guildId, options);
 
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Should().BeEquivalentTo(expectedLeaderboard);
         actualPathAndQuery.Should().StartWith($"{ApiPathPrefix}/guilds/{guildId}/users");
         actualPathAndQuery.Should().Contain("limit=10");
         actualPathAndQuery.Should().Contain("offset=5");
@@ -95,6 +145,5 @@ public class EconomyEndpointsTests : IDisposable
     public void Dispose()
     {
         _mockHttpClient?.Dispose();
-        // _mockHttpMessageHandler does not need explicit dispose
     }
 }
